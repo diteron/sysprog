@@ -12,7 +12,7 @@ ThreadPool::ThreadPool(int threadsInPool, std::queue<std::string>& fileQueue,
 {
     threads.resize(threadsInPool);
     InitializeCriticalSection(&fileLock);
-    coutMutex = CreateMutex(nullptr, FALSE, nullptr);
+    InitializeCriticalSection(&coutLock);
 }
 
 ThreadPool::~ThreadPool()
@@ -22,7 +22,7 @@ ThreadPool::~ThreadPool()
     }
     
     DeleteCriticalSection(&fileLock);
-    CloseHandle(coutMutex);
+    DeleteCriticalSection(&coutLock);
 }
 
 bool ThreadPool::start()
@@ -55,9 +55,9 @@ void ThreadPool::processFiles()
 
     while (true) {
         #ifndef NDEBUG
-            WaitForSingleObject(coutMutex, INFINITE);
+            EnterCriticalSection(&fileLock);
             std::cout << "Thread with id " << threadId << " is waiting for task\n";
-            ReleaseMutex(coutMutex);
+            LeaveCriticalSection(&fileLock);
         #endif
 
         WaitForSingleObject(taskEvent, INFINITE);
@@ -81,9 +81,9 @@ void ThreadPool::processFiles()
         }
 
         #ifndef NDEBUG
-            WaitForSingleObject(coutMutex, INFINITE);
+            EnterCriticalSection(&fileLock);
             std::cout << "Thread with id " << threadId << " have started processing file '" << filePath<<  "'\n";
-            ReleaseMutex(coutMutex);
+            LeaveCriticalSection(&fileLock);
         #endif
 
         processFile(filePath);

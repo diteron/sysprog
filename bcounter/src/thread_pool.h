@@ -30,7 +30,7 @@ private:
     std::queue<std::string>& fileQueue;
     HANDLE& queueMutex;
     HANDLE& taskEvent;
-    HANDLE coutMutex;
+    CRITICAL_SECTION coutLock;
 
     const char* OutFileName = "result.txt";
     std::ofstream resultFile;
