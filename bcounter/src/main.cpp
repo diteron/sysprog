@@ -2,12 +2,15 @@
 #include "file_collector.h"
 
 #include <iostream>
+#include <chrono>
 
 bool isArgsCorrect(int argc, const char* argv[], long& numberOfThreads, std::string& dirPath);
 
 
 int main(int argc, const char* argv[])
 {
+    using namespace std::chrono;
+
     long numberOfThreads;
     std::string dirPath;
     if (!isArgsCorrect(argc, argv, numberOfThreads, dirPath)) {
@@ -22,6 +25,9 @@ int main(int argc, const char* argv[])
     
     std::cout << "Counting bytes in dir '" << argv[1] << "' is started\n";
 
+    uint64_t start, end;
+    start = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+
     if (!threadPool->start()) {
         std::cerr << "Failed to start thread pool\n";
         return 1;
@@ -33,7 +39,10 @@ int main(int argc, const char* argv[])
     CloseHandle(queueMutex);
     CloseHandle(taskEvent);
 
-    std::cout << "Counting bytes in dir '" << argv[1] << "' is completed\n";
+    end = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    uint64_t countTime = end - start;
+
+    std::cout << "Counting bytes in dir '" << argv[1] << "' is completed in " << countTime << " milliseconds\n";
 
     return 0;
 }

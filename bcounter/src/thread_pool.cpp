@@ -55,9 +55,9 @@ void ThreadPool::processFiles()
 
     while (true) {
         #ifndef NDEBUG
-            EnterCriticalSection(&fileLock);
+            EnterCriticalSection(&coutLock);
             std::cout << "Thread with id " << threadId << " is waiting for task\n";
-            LeaveCriticalSection(&fileLock);
+            LeaveCriticalSection(&coutLock);
         #endif
 
         WaitForSingleObject(taskEvent, INFINITE);
@@ -68,25 +68,23 @@ void ThreadPool::processFiles()
             if (!fileQueue.empty()) {
                 filePath = fileQueue.front();
                 fileQueue.pop();
-                ReleaseMutex(queueMutex);
             }
-            else if (!isDone) {
-                ReleaseMutex(queueMutex);
-                continue;
-            }
-            else {
-                ReleaseMutex(queueMutex);
-                return;
+            ReleaseMutex(queueMutex);
+
+            if (isDone && filePath.empty()) {
+                break;
             }
         }
 
-        #ifndef NDEBUG
-            EnterCriticalSection(&fileLock);
-            std::cout << "Thread with id " << threadId << " have started processing file '" << filePath<<  "'\n";
-            LeaveCriticalSection(&fileLock);
-        #endif
+        if (!filePath.empty()) {
+            #ifndef NDEBUG
+                EnterCriticalSection(&coutLock);
+                std::cout << "Thread with id " << threadId << " have started processing file '" << filePath<<  "'\n";
+                LeaveCriticalSection(&coutLock);
+            #endif
 
-        processFile(filePath);
+            processFile(filePath);
+        }
     }
 }
 
