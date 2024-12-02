@@ -21,7 +21,8 @@ void FileCollector::collectFiles(const std::string& directory)
                 if (findData.cFileName[0] != '.') {
                     collectFiles(fileOrDir);
                 }
-            } else {
+            } 
+            else {
                 WaitForSingleObject(queueMutex, INFINITE);
                 fileQueue.push(fileOrDir);
                 ReleaseMutex(queueMutex);
