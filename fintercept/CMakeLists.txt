@@ -12,4 +12,4 @@ endif()
 project("fintercept")
 
 add_subdirectory("src/fintercept")
-add_subdirectory("stc/logger")
+add_subdirectory("src/logger")

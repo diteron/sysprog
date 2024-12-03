@@ -23,13 +23,13 @@ bool DllInjector::injectDll(DWORD processId, const char* dllPath) const
 
 void* DllInjector::copyDllPathToProcessMemory(HANDLE processHandle, const char* dllPath) const
 {
-    void* dllPathInRemoteMemory = VirtualAllocEx(processHandle, nullptr, strlen(dllPath) + 1, MEM_COMMIT, PAGE_READWRITE);
+    void* dllPathInRemoteMemory = VirtualAllocEx(processHandle, nullptr, std::strlen(dllPath) + 1, MEM_COMMIT, PAGE_READWRITE);
     if (!dllPathInRemoteMemory) {
         std::cerr << "Failed to allocate memory in target process. Error code '" << GetLastError() << "'\n";
         return nullptr;
     }
 
-    if (!WriteProcessMemory(processHandle, dllPathInRemoteMemory, dllPath, strlen(dllPath) + 1, nullptr)) {
+    if (!WriteProcessMemory(processHandle, dllPathInRemoteMemory, dllPath, std::strlen(dllPath) + 1, nullptr)) {
         std::cerr << "Failed to write memory in targer process. Error code '" << GetLastError() << "'\n";
         VirtualFreeEx(processHandle, dllPathInRemoteMemory, 0, MEM_RELEASE);
         return nullptr;
