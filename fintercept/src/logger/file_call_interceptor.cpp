@@ -41,6 +41,7 @@ void FileCallInterceptor::installHooks()
 void FileCallInterceptor::removeHooks()
 {
     unhookCreateFile();
+    unhookDeleteFile();
 }
 
 bool FileCallInterceptor::saveProcessName()
