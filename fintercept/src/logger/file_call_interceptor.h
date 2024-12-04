@@ -9,34 +9,44 @@ public:
     using CreateFileOrig = HANDLE (WINAPI*)(LPCWSTR lpFileName, DWORD dwDesiredAccess,
             DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes,
             DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
-
-    // typedef HANDLE(WINAPI* CreateFileOrig)(
-    //     LPCWSTR lpFileName,
-    //     DWORD dwDesiredAccess,
-    //     DWORD dwShareMode,
-    //     LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-    //     DWORD dwCreationDisposition,
-    //     DWORD dwFlagsAndAttributes,
-    //     HANDLE hTemplateFile
-    // );
+    using DeleteFileOrig = BOOL (WINAPI*)(LPCWSTR lpFileName);            
 
     FileCallInterceptor();
 
-    void installHook();
-    void removeHook();
+    void installHooks();
+    void removeHooks();
 
 private:
-    static HANDLE WINAPI HookedCreateFile(LPCWSTR lpFileName, DWORD dwDesiredAccess,
+    bool saveProcessName();
+
+    bool hookCreateFile(HMODULE kernel32Module);
+    void unhookCreateFile();
+    static HANDLE WINAPI hookedCreateFile(LPCWSTR lpFileName, DWORD dwDesiredAccess,
             DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes,
             DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes, HANDLE hTemplateFile);
+    static std::wstring getFileOperation(DWORD dwDesiredAccess, DWORD dwCreationDisposition);
+    static void logCreateFileCall(const std::wstring&, LPCWSTR fileName);
+    static void changeCreateFileToOriginal();
+    static void changeCreateFileToHooked();
 
-    static void logFileCall(const char* operation, LPCWSTR fileName);
-    static void changeFunctionToOrig();
-    static void changeFunctionToHook();
+    bool hookDeleteFile(HMODULE kernel32Module);
+    void unhookDeleteFile();
+    static BOOL WINAPI hookedDeleteFile(LPCWSTR lpFileName);    
+    static void logDeleteFileCall(LPCWSTR fileName);     
+    static void changeDeleteFileToOriginal();
+    static void changeDeleteFileToHooked();
 
-    static CreateFileOrig createFileOrig;
-    static BYTE originalBytes[5];
-    static BYTE* trampoline;
+    static WCHAR processName[];
 
-    static const char* logFileName;
+    static const int JmpOpcodeSize = 14;
+    
+    static CreateFileOrig createFileOriginal;
+    static BYTE createFileOriginalBytes[];
+    static BYTE createFileAbsoluteJmpCode[];
+
+    static DeleteFileOrig deleteFileOriginal;
+    static BYTE deleteFileOriginalBytes[];
+    static BYTE deleteFileAbsoluteJmpCode[];
+
+    static constexpr wchar_t* logFileName = L"file_access.log";
 };
