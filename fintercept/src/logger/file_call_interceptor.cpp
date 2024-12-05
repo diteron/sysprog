@@ -3,21 +3,6 @@
 #include <iomanip>
 #include <psapi.h>
 
-WCHAR FileCallInterceptor::processName[MAX_PATH] = {};
-
-FileCallInterceptor::CreateFileOrig FileCallInterceptor::createFileOriginal = nullptr;
-BYTE FileCallInterceptor::createFileOriginalBytes[JmpOpcodeSize] = {};
-BYTE FileCallInterceptor::createFileAbsoluteJmpCode[JmpOpcodeSize] = {
-        0xFF, 0x25, 0x00, 0x00, 0x00, 0x00, // JMP [rip + 0x0]
-        0, 0, 0, 0, 0, 0, 0, 0              // Placeholder for the address
-};
-
-FileCallInterceptor::DeleteFileOrig FileCallInterceptor::deleteFileOriginal = nullptr;
-BYTE FileCallInterceptor::deleteFileOriginalBytes[JmpOpcodeSize] = {};
-BYTE FileCallInterceptor::deleteFileAbsoluteJmpCode[JmpOpcodeSize] = {
-        0xFF, 0x25, 0x00, 0x00, 0x00, 0x00, // JMP [rip + 0x0]
-        0, 0, 0, 0, 0, 0, 0, 0              // Placeholder for the address
-};
 
 FileCallInterceptor::FileCallInterceptor()
 {}

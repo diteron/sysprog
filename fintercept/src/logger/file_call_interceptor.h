@@ -36,17 +36,23 @@ private:
     static void changeDeleteFileToOriginal();
     static void changeDeleteFileToHooked();
 
-    static WCHAR processName[];
+    inline static WCHAR processName[MAX_PATH] = {};
 
-    static const int JmpOpcodeSize = 14;
+    static constexpr int JmpOpcodeSize = 14;
     
-    static CreateFileOrig createFileOriginal;
-    static BYTE createFileOriginalBytes[];
-    static BYTE createFileAbsoluteJmpCode[];
+    inline static CreateFileOrig createFileOriginal = nullptr; 
+    inline static BYTE createFileOriginalBytes[JmpOpcodeSize] = {};
+    inline static BYTE createFileAbsoluteJmpCode[JmpOpcodeSize] = {
+        0xFF, 0x25, 0x00, 0x00, 0x00, 0x00, // JMP [rip + 0x0]
+        0, 0, 0, 0, 0, 0, 0, 0              // Placeholder for the address
+    };
 
-    static DeleteFileOrig deleteFileOriginal;
-    static BYTE deleteFileOriginalBytes[];
-    static BYTE deleteFileAbsoluteJmpCode[];
+    inline static DeleteFileOrig deleteFileOriginal = nullptr;
+    inline static BYTE deleteFileOriginalBytes[JmpOpcodeSize] = {};
+    inline static BYTE deleteFileAbsoluteJmpCode[JmpOpcodeSize] = {
+        0xFF, 0x25, 0x00, 0x00, 0x00, 0x00, // JMP [rip + 0x0]
+        0, 0, 0, 0, 0, 0, 0, 0              // Placeholder for the address
+    };
 
     static constexpr wchar_t* logFileName = L"file_access.log";
 };
