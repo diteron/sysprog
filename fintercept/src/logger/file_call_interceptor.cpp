@@ -3,9 +3,12 @@
 #include <iomanip>
 #include <psapi.h>
 
-
 FileCallInterceptor::FileCallInterceptor()
-{}
+{
+    if (!logFile.is_open()) {
+        logFile = std::wofstream{logFileName, std::ios::app};
+    }
+}
 
 void FileCallInterceptor::installHooks()
 {   
@@ -133,12 +136,10 @@ void FileCallInterceptor::logCreateFileCall(const std::wstring& operation, LPCWS
     std::time_t now = std::time(nullptr);
     std::tm local_time = *std::localtime(&now);
 
-    std::wofstream logFile{logFileName, std::wios::app};
     if (logFile.is_open()) {
         logFile << L"[" << processName << L" -- "
                 << std::put_time(&local_time, L"%Y-%m-%d %H:%M:%S") << L"]  "
                 << operation << L": " << fileName << std::endl;
-        logFile.close();
     }
 }
 
@@ -211,12 +212,10 @@ void FileCallInterceptor::logDeleteFileCall(LPCWSTR fileName)
     std::time_t now = std::time(nullptr);
     std::tm local_time = *std::localtime(&now);
 
-    std::wofstream logFile{logFileName, std::wios::app};
     if (logFile.is_open()) {
         logFile << L"[" << processName << L" -- "
                 << std::put_time(&local_time, L"%Y-%m-%d %H:%M:%S") << L"]  "
                 << L"Delete File: " << fileName << std::endl;
-        logFile.close();
     }
 }
 

@@ -55,4 +55,5 @@ private:
     };
 
     static constexpr wchar_t* logFileName = L"file_access.log";
+    inline static std::wofstream logFile;
 };
